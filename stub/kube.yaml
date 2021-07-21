@@ -1,0 +1,67 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: stub
+    service: stub
+    team: dca
+  name: stub
+  namespace: dca
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: stub
+      service: stub
+      team: dca
+  template:
+    metadata:
+      labels:
+        app: stub
+        service: stub
+        team: dca
+    spec:
+      containers:
+      - env:
+        - name: ASPNETCORE_ENVIRONMENT
+          value: sandbox
+        image: dcarea/stub:1
+        name: stub
+        ports:
+        - containerPort: 80
+          name: http
+          protocol: TCP
+        resources:
+          limits:
+            cpu: 500m
+            memory: 512Mi
+          requests:
+            cpu: 100m
+            memory: 50Mi
+      imagePullSecrets:
+      - name: regcred
+      restartPolicy: Always
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: stub
+    service: stub
+    team: dca
+  name: stub
+  namespace: dca
+spec:
+  ports:
+  - name: http
+    port: 80
+    protocol: TCP
+    targetPort: 80
+  selector:
+    app: stub
+    service: stub
+    team: dca
+  type: ClusterIP
