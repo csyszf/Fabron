@@ -24,4 +24,3 @@ jobs:
       env:
         PULUMI_ACCESS_TOKEN: ${{ secrets.PULUMI_ACCESS_TOKEN }}
         KUBECONFIG: .kubeconfig
-        IMAGE_VERSION: build.${{ github.run_number }}

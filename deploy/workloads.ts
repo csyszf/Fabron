@@ -8,8 +8,8 @@ import { ServiceAccount } from "@pulumi/kubernetes/core/v1";
 import { PgSQLConfig } from "./pgsql";
 import { Ingress } from "@pulumi/kubernetes/networking/v1beta1";
 
-const image_version = process.env["IMAGE_VERSION"];
-if (!image_version) { throw "missing IMAGE_VERSION" };
+const config = new pulumi.Config();
+const image_version = config.require("IMAGE_VERSION");
 const image = `${image_repo_api}:${image_version}`;
 
 export function deploy(redis_config: RedisConfig, pgsql_config: PgSQLConfig) {
