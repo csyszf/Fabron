@@ -16,6 +16,11 @@ namespace Fabron.Grains
         Task OnJobStateChanged(Job jobState);
 
         Task OnJobFinalized(Job jobState);
+
+        [OneWay]
+        Task OnCronJobStateChanged(CronJob jobState);
+
+        Task OnCronJobFinalized(CronJob jobState);
     }
 
     public class JobReporterGrain : Grain, IJobReporterGrain
@@ -41,5 +46,8 @@ namespace Fabron.Grains
             DeactivateOnIdle();
             return;
         }
+
+        public Task OnCronJobStateChanged(CronJob jobState) => throw new System.NotImplementedException();
+        public Task OnCronJobFinalized(CronJob jobState) => throw new System.NotImplementedException();
     }
 }

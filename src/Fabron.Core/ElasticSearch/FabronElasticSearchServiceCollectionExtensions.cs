@@ -29,6 +29,7 @@ namespace Microsoft.Extensions.DependencyInjection
             services.AddElasticSearchJobReporter();
             return services;
         }
+
         internal static IServiceCollection AddElasticSearchJobQuerier(this IServiceCollection services)
         {
             services.AddSingleton<IJobQuerier, ElasticSearchJobQuerier>(sp =>
