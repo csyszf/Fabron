@@ -38,6 +38,7 @@ namespace Fabron.Grains
         public async Task OnJobFinalized(Job jobState)
         {
             await _reporter.Report(this.GetPrimaryKeyString(), jobState.Metadata.ResourceVersion, jobState);
+            DeactivateOnIdle();
             return;
         }
     }

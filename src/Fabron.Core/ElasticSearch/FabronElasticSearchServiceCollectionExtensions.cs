@@ -19,6 +19,7 @@ namespace Microsoft.Extensions.DependencyInjection
         {
             services.Configure<ElasticSearchOptions>(config);
             services.AddElasticSearchJobReporter();
+            services.AddElasticSearchJobQuerier();
             return services;
         }
 
@@ -30,7 +31,13 @@ namespace Microsoft.Extensions.DependencyInjection
         }
         internal static IServiceCollection AddElasticSearchJobQuerier(this IServiceCollection services)
         {
-            services.AddSingleton<IJobQuerier, ElasticSearchJobQuerier>();
+            services.AddSingleton<IJobQuerier, ElasticSearchJobQuerier>(sp =>
+            {
+                ElasticSearchOptions options = sp.GetRequiredService<IOptions<ElasticSearchOptions>>().Value;
+                ConnectionSettings settings = new ConnectionSettings(new Uri(options.Server));
+                ElasticClient client = new(settings);
+                return ActivatorUtilities.CreateInstance<ElasticSearchJobQuerier>(sp, client);
+            });
             return services;
         }
 
