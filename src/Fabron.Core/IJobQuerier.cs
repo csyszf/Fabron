@@ -15,4 +15,12 @@ namespace Fabron
         Task<IEnumerable<CronJob>> GetCronJobByLabels(IEnumerable<(string, string)> labels);
     }
 
+    public class NoopJobQuerier : IJobQuerier
+    {
+        public Task<IEnumerable<CronJob>> GetCronJobByLabel(string labelName, string labelValue) => throw new System.NotImplementedException();
+        public Task<IEnumerable<CronJob>> GetCronJobByLabels(IEnumerable<(string, string)> labels) => throw new System.NotImplementedException();
+        public Task<IEnumerable<Job>> GetJobByLabel(string labelName, string labelValue) => throw new System.NotImplementedException();
+        public Task<IEnumerable<Job>> GetJobByLabels(IEnumerable<(string, string)> labels) => throw new System.NotImplementedException();
+    }
+
 }

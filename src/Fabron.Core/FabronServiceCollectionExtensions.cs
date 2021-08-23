@@ -30,6 +30,12 @@ namespace Microsoft.Extensions.DependencyInjection
             services.AddSingleton<IJobReporter, TJobReporter>();
             return services;
         }
+        public static IServiceCollection AddJobQuerier<TJobQuerier>(this IServiceCollection services)
+            where TJobQuerier: class, IJobQuerier
+        {
+            services.AddSingleton<IJobQuerier, TJobQuerier>();
+            return services;
+        }
 
     }
 }

@@ -23,7 +23,8 @@ namespace Orleans.Hosting
             siloBuilder.ConfigureServices((ctx, services) =>
             {
                 services.RegisterJobCommandHandlers(commandAssemblies);
-                services.AddSingleton<IJobReporter, NoopJobReporter>();
+                services.AddJobReporter<NoopJobReporter>();
+                services.AddJobQuerier<NoopJobQuerier>();
             });
 
             return siloBuilder;

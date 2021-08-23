@@ -2,8 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System;
-
-using FabronService.Commands;
+using Fabron;
 
 using Microsoft.Extensions.DependencyInjection;
 
@@ -25,7 +24,11 @@ namespace FabronService.FunctionalTests
             });
             siloBuilder.UseInMemoryJobStore()
                 .AddMemoryGrainStorageAsDefault();
-            siloBuilder.ConfigureServices(services => services.AddJobReporter<TestJobReporter>());
+            siloBuilder.ConfigureServices(services =>
+            {
+                services.AddJobReporter<NoopJobReporter>();
+                services.AddJobQuerier<NoopJobQuerier>();
+            });
             siloBuilder.ConfigureServices(ConfigureServices);
             siloBuilder.AddFabron();
         }

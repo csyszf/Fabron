@@ -1,6 +1,7 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using Fabron;
 using FabronService.Commands;
 
 using Microsoft.AspNetCore.Builder;
@@ -20,7 +21,8 @@ namespace FabronService.FunctionalTests
             => services.ConfigureFramework()
                 .AddApiKeyAuth(Configuration["ApiKey"])
                 .AddSwagger()
-                .RegisterJobCommandHandlers();
+                .RegisterJobCommandHandlers()
+                .AddJobQuerier<NoopJobQuerier>();
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
             => app.UseCustomSwagger()
