@@ -31,28 +31,5 @@ namespace Microsoft.Extensions.DependencyInjection
             return services;
         }
 
-        public static IServiceCollection AddElasticSearchJobReporter(this IServiceCollection services, IConfiguration config)
-        {
-            services.Configure<ElasticSearchJobReporterOptions>(config);
-            return services.AddElasticSearchJobReporter();
-        }
-
-        public static IServiceCollection AddElasticSearchJobReporter(this IServiceCollection services, Action<ElasticSearchJobReporterOptions> configure)
-        {
-            services.Configure<ElasticSearchJobReporterOptions>(configure);
-            return services.AddElasticSearchJobReporter();
-        }
-
-        public static IServiceCollection AddElasticSearchJobReporter(this IServiceCollection services)
-        {
-            services.AddSingleton<IJobReporter, ElasticSearchJobReporter>(sp =>
-            {
-                ElasticSearchJobReporterOptions options = sp.GetRequiredService<IOptions<ElasticSearchJobReporterOptions>>().Value;
-                var settings = new ConnectionSettings(new Uri(options.Server));
-                ElasticClient? client = new(settings);
-                return ActivatorUtilities.CreateInstance<ElasticSearchJobReporter>(sp, client);
-            });
-            return services;
-        }
     }
 }

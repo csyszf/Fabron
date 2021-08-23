@@ -39,7 +39,7 @@ namespace FabronService.Resources.HttpReminders
             var tenantId = HttpContext.User.Identity!.Name!;
             var resourceUri = $"tenants/{tenantId}/HttpReminders/{req.Name}";
             var resourceId = await _resourceLocator.GetOrCreateResourceId(resourceUri);
-            Job<RequestWebAPI, int>? job = await _jobManager.Schedule<RequestWebAPI, int>(resourceId, req.Command, req.Schedule, new Dictionary<string, string>{ { "tenant", tenantId} });
+            Job<RequestWebAPI, int>? job = await _jobManager.ScheduleJob<RequestWebAPI, int>(resourceId, req.Command, req.Schedule, new Dictionary<string, string>{ { "tenant", tenantId} });
             HttpReminder reminder = job.ToResource(req.Name);
             return CreatedAtRoute( "HttpReminders_Get", new { name = reminder.Name }, reminder);
         }

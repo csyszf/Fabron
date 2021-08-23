@@ -7,13 +7,13 @@ using Fabron.Models;
 
 namespace Fabron.Contracts
 {
-    public record TypedJobSpec<TCommand>(
+    public record JobSpec<TCommand>(
         DateTime Schedule,
         string CommandName,
         TCommand CommandData
     ) where TCommand : ICommand;
 
-    public record TypedJobStatus<TResult>(
+    public record JobStatus<TResult>(
         ExecutionStatus ExecutionStatus,
         DateTime? StartedAt,
         DateTime? FinishedAt,
@@ -25,7 +25,7 @@ namespace Fabron.Contracts
     public record Job<TCommand, TResult>
     (
         JobMetadata Metadata,
-        TypedJobSpec<TCommand> Spec,
-        TypedJobStatus<TResult> Status
+        JobSpec<TCommand> Spec,
+        JobStatus<TResult> Status
     ) where TCommand : ICommand<TResult>;
 }

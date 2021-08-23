@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text.Json;
 using System.Threading.Tasks;
 
@@ -16,7 +17,7 @@ namespace Fabron
 {
     public partial class JobManager
     {
-        public async Task<Job<TCommand, TResult>> Schedule<TCommand, TResult>(string jobId, TCommand command, DateTime? scheduledAt = null, Dictionary<string, string>? labels = null)
+        public async Task<Job<TCommand, TResult>> ScheduleJob<TCommand, TResult>(string jobId, TCommand command, DateTime? scheduledAt = null, Dictionary<string, string>? labels = null)
             where TCommand : ICommand<TResult>
         {
             string commandName = _registry.CommandNameRegistrations[typeof(TCommand)];
@@ -40,7 +41,8 @@ namespace Fabron
         public async Task<Job<TJobCommand, TResult>?> GetJobById<TJobCommand, TResult>(string jobId)
             where TJobCommand : ICommand<TResult>
         {
-            Job? jobState = await GetTransientJobState(jobId);
+            IJobGrain grain = _client.GetGrain<IJobGrain>(jobId);
+            Job? jobState = await grain.GetState();
             if (jobState is null)
             {
                 return null;
@@ -49,10 +51,26 @@ namespace Fabron
             return jobState.Map<TJobCommand, TResult>();
         }
 
-        private async Task<Job?> GetTransientJobState(string jobId)
+        public async Task<IEnumerable<Job<TJobCommand, TResult>>> GetJobByLabel<TJobCommand, TResult>(string labelName, string labelValue)
+            where TJobCommand : ICommand<TResult>
         {
-            IJobGrain grain = _client.GetGrain<IJobGrain>(jobId);
-            return await grain.GetState();
+            IEnumerable<Job> jobs = await _querier.GetJobByLabel(labelName, labelValue);
+            return jobs.Select(job => job.Map<TJobCommand, TResult>());
+        }
+
+        public async Task<IEnumerable<Job<TJobCommand, TResult>>> GetJobByLabels<TJobCommand, TResult>(params (string, string)[] labels)
+            where TJobCommand : ICommand<TResult>
+        {
+            IEnumerable<Job> jobs = await _querier.GetJobByLabels(labels);
+            return jobs.Select(job => job.Map<TJobCommand, TResult>());
+        }
+
+        public async Task<IEnumerable<Job<TJobCommand, TResult>>> GetJobByCron<TJobCommand, TResult>(string cronJobId)
+            where TJobCommand : ICommand<TResult>
+        {
+            (string, string)[]? labels = new[] { ("owner_type", "cronjob"), ("owner_id", cronJobId) };
+            IEnumerable<Job> jobs = await _querier.GetJobByLabels(labels);
+            return jobs.Select(job => job.Map<TJobCommand, TResult>());
         }
     }
 }

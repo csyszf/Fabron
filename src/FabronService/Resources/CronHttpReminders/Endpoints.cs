@@ -3,8 +3,10 @@
 
 
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using Fabron;
+using Fabron.Contracts;
 using FabronService.Commands;
 using FabronService.Resources.CronHttpReminders.Models;
 using FabronService.Services;
@@ -33,25 +35,42 @@ namespace FabronService.Resources.CronHttpReminders
         [HttpPost(Name = "CronHttpReminders_Register")]
         public async Task<IActionResult> Create(RegisterCronHttpReminderRequest req)
         {
-            var tenantId = HttpContext.User.Identity!.Name!;
-            var resourceUri = $"tenants/{tenantId}/CronHttpReminders/{req.Name}";
-            var resourceId = await _resourceLocator.GetOrCreateResourceId(resourceUri);
-            var job = await _jobManager.Schedule<RequestWebAPI>(resourceId, req.Schedule, req.Command, new Dictionary<string, string> { { "tenant", tenantId } });
-            var reminder = job.ToResource(req.Name);
+            string? tenantId = HttpContext.User.Identity!.Name!;
+            string? resourceUri = $"tenants/{tenantId}/CronHttpReminders/{req.Name}";
+            string? resourceId = await _resourceLocator.GetOrCreateResourceId(resourceUri);
+            Fabron.Contracts.CronJob<RequestWebAPI>? job = await _jobManager.ScheduleCronJob<RequestWebAPI>(resourceId, req.Schedule, req.Command, new Dictionary<string, string> { { "tenant", tenantId } });
+            CronHttpReminder? reminder = job.ToResource(req.Name);
             return CreatedAtRoute("CronHttpReminders_Get", new { name = reminder.Name }, reminder);
         }
 
         [HttpGet("{name}", Name = "CronHttpReminders_Get")]
         public async Task<IActionResult> Get(string name)
         {
-            var tenantId = HttpContext.User.Identity!.Name;
-            var resourceUri = $"tenants/{tenantId}/CronHttpReminders/{name}";
-            var resourceId = await _resourceLocator.GetResourceId(resourceUri);
-            if (resourceId == null) return NotFound();
+            string? tenantId = HttpContext.User.Identity!.Name;
+            string? resourceUri = $"tenants/{tenantId}/CronHttpReminders/{name}";
+            string? resourceId = await _resourceLocator.GetResourceId(resourceUri);
+            if (resourceId == null)
+            {
+                return NotFound();
+            }
 
-            var job = await _jobManager.GetCronJob<RequestWebAPI>(resourceId);
+            CronJob<RequestWebAPI>? job = await _jobManager.GetCronJobById<RequestWebAPI>(resourceId);
             return job is null ? NotFound() : Ok(job.ToResource(name));
         }
 
+        [HttpGet("{name}/items", Name = "CronHttpReminders_GetItems")]
+        public async Task<IActionResult> GetItems(string name)
+        {
+            string? tenantId = HttpContext.User.Identity!.Name;
+            string? resourceUri = $"tenants/{tenantId}/CronHttpReminders/{name}";
+            string? resourceId = await _resourceLocator.GetResourceId(resourceUri);
+            if (resourceId == null)
+            {
+                return NotFound();
+            }
+
+            IEnumerable<Job<RequestWebAPI, int>>? jobs = await _jobManager.GetJobByCron<RequestWebAPI, int>(resourceId);
+            return Ok(jobs.Select(job => job.ToResource()));
+        }
     }
 }

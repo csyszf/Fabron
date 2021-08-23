@@ -80,7 +80,7 @@ IHostBuilder hostBuilder = Host.CreateDefaultBuilder(args)
                 })
                 .ConfigureServices(services =>
                 {
-                    services.AddElasticSearchJobReporter(ctx.Configuration.GetSection("Reporters:ElasticSearch"));
+                    services.UseElasticSearch(ctx.Configuration.GetSection("Reporters:ElasticSearch"));
                 }); ;
         }
     })

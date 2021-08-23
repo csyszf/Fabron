@@ -12,10 +12,25 @@ namespace Fabron
 {
     public interface IJobManager
     {
-        Task<Job<TCommand, TResult>> Schedule<TCommand, TResult>(string jobId, TCommand command, DateTime? scheduledAt = null, Dictionary<string, string>? labels = null) where TCommand : ICommand<TResult>;
-        Task<CronJob<TCommand>> Schedule<TCommand>(string jobId, string cronExp, TCommand command, Dictionary<string, string>? labels) where TCommand : ICommand;
+        // transient
+        Task<Job<TCommand, TResult>> ScheduleJob<TCommand, TResult>(string jobId, TCommand command, DateTime? scheduledAt = null, Dictionary<string, string>? labels = null) where TCommand : ICommand<TResult>;
 
         Task<Job<TJobCommand, TResult>?> GetJobById<TJobCommand, TResult>(string jobId) where TJobCommand : ICommand<TResult>;
-        Task<CronJob<TCommand>?> GetCronJob<TCommand>(string jobId) where TCommand: ICommand;
+
+        Task<IEnumerable<Job<TJobCommand, TResult>>> GetJobByLabel<TJobCommand, TResult>(string labelName, string labelValue) where TJobCommand : ICommand<TResult>;
+
+        Task<IEnumerable<Job<TJobCommand, TResult>>> GetJobByLabels<TJobCommand, TResult>(params (string, string)[] labels) where TJobCommand : ICommand<TResult>;
+
+        Task<IEnumerable<Job<TJobCommand, TResult>>> GetJobByCron<TJobCommand, TResult>(string cronJobId) where TJobCommand : ICommand<TResult>;
+
+        // cron
+        Task<CronJob<TCommand>> ScheduleCronJob<TCommand>(string cronJobId, string cronExp, TCommand command, Dictionary<string, string>? labels) where TCommand : ICommand;
+
+        Task<CronJob<TCommand>?> GetCronJobById<TCommand>(string cronJobId) where TCommand : ICommand;
+
+        Task<IEnumerable<CronJob<TJobCommand>>> GetCronJobByLabel<TJobCommand>(string labelName, string labelValue) where TJobCommand : ICommand;
+
+        Task<IEnumerable<CronJob<TJobCommand>>> GetCronJobByLabels<TJobCommand>(params (string, string)[] labels) where TJobCommand : ICommand;
+
     }
 }

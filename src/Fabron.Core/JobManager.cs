@@ -15,14 +15,17 @@ namespace Fabron
         private readonly ILogger _logger;
         private readonly CommandRegistry _registry;
         private readonly IClusterClient _client;
+        private readonly IJobQuerier _querier;
+
         public JobManager(ILogger<JobManager> logger,
             IOptions<CommandRegistry> options,
-            IClusterClient client)
+            IClusterClient client,
+            IJobQuerier querier)
         {
             _logger = logger;
             _registry = options.Value;
             _client = client;
+            _querier = querier;
         }
-
     }
 }

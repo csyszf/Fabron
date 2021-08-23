@@ -25,11 +25,11 @@ namespace Fabron
 
             Job<TCommand, TResult> typedJob = new(
                 job.Metadata,
-                new TypedJobSpec<TCommand>(
+                new JobSpec<TCommand>(
                     job.Spec.Schedule,
                     job.Spec.CommandName,
                     cmdData),
-                new TypedJobStatus<TResult>(
+                new JobStatus<TResult>(
                     job.Status.ExecutionStatus,
                     job.Status.StartedAt,
                     job.Status.FinishedAt,

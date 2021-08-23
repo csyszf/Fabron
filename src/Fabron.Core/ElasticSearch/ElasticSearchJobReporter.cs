@@ -1,44 +1,32 @@
 ﻿// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using System;
-using System.Collections.Generic;
 using System.Threading.Tasks;
 using Fabron.Models;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
-namespace Fabron
+namespace Fabron.ElasticSearch
 {
-    public record JobDocument(
-        string Id,
-        string CommandName,
-        Dictionary<string, string> labels,
-        DateTime CreatedAt,
-        DateTime Schedule,
-        DateTime? FinishedAt,
-        string? Reason,
-        ExecutionStatus Status,
-        bool Finalized,
-        long Version
-        );
-
     public class ElasticSearchJobReporter : IJobReporter
     {
         private readonly ILogger<ElasticSearchJobReporter> _logger;
-        private readonly ElasticSearchJobReporterOptions _options;
+        private readonly ElasticSearchOptions _options;
         private readonly Nest.IElasticClient _esClient;
 
-        public ElasticSearchJobReporter(ILogger<ElasticSearchJobReporter> logger, IOptions<ElasticSearchJobReporterOptions> options, Nest.IElasticClient esClient)
+        public ElasticSearchJobReporter(ILogger<ElasticSearchJobReporter> logger, IOptions<ElasticSearchOptions> options, Nest.IElasticClient esClient)
         {
             _logger = logger;
             _options = options.Value;
             _esClient = esClient;
         }
 
-        public async Task Report(string jobId, long version, Job jobState)
+        public async Task Report(string jobId, long version, Job job)
         {
-            JobDocument doc = new(jobId, jobState.Spec.CommandName, jobState.Metadata.Labels, jobState.Metadata.CreationTimestamp, jobState.Spec.Schedule, jobState.Status.FinishedAt, jobState.Status.Reason, jobState.Status.ExecutionStatus, jobState.Status.Finalized, version);
+            JobDocument doc = new(jobId,
+                job.Metadata,
+                job.Spec,
+                job.Status);
             Nest.IndexResponse res = await _esClient.IndexAsync(doc, idx => idx.Index(_options.JobIndexName));
             if (_logger.IsEnabled(LogLevel.Debug))
             {
