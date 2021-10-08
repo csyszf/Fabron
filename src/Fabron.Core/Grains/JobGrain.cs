@@ -11,7 +11,6 @@ using Microsoft.Extensions.Options;
 using Microsoft.Toolkit.Diagnostics;
 using Orleans;
 using Orleans.Concurrency;
-using Orleans.Placement;
 using Orleans.Runtime;
 
 namespace Fabron.Grains
@@ -42,7 +41,6 @@ namespace Fabron.Grains
         Task WaitEventsConsumed(int timeoutSeconds);
     }
 
-    [PreferLocalPlacement]
     public partial class JobGrain : Grain, IJobGrain, IRemindable
     {
         private readonly TimeSpan _defaultTickPeriod = TimeSpan.FromMinutes(2);
