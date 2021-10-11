@@ -1,8 +1,9 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
-  <ItemGroup>
-    <ProjectReference Include="..\Fabron.Server\Fabron.Server.csproj" />
-  </ItemGroup>
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>$(DefaultTargetFramework)</TargetFramework>
+  </PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="Microsoft.Extensions.Hosting" Version="$(MEXVersion)" />
@@ -10,9 +11,9 @@
     <PackageReference Include="FluentAssertions" Version="$(FluentAssertionsVersion)" />
   </ItemGroup>
 
-  <PropertyGroup>
-    <OutputType>Exe</OutputType>
-    <TargetFramework>net6.0</TargetFramework>
-  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Fabron.Providers.PostgreSQL\Fabron.Providers.PostgreSQL.csproj" />
+    <ProjectReference Include="..\Fabron.Server\Fabron.Server.csproj" />
+  </ItemGroup>
 
 </Project>

@@ -4,13 +4,13 @@ namespace Fabron.Providers.PostgreSQL
     {
         public string ConnectionString { get; set; } = default!;
 
-        public string JobEventLogsTableName { get; set; } = "JobEventLogs";
+        public string JobEventLogsTableName { get; set; } = "fabron_job_eventlogs";
 
-        public string CronJobEventLogsTableName { get; set; } = "CronJobEventLogs";
+        public string CronJobEventLogsTableName { get; set; } = "fabron_cronjob_eventlogs";
 
-        public string JobConsumersTableName { get; set; } = "JobConsumers";
+        public string JobConsumersTableName { get; set; } = "fabron_job_consumers";
 
-        public string CronJobConsumersTableName { get; set; } = "CronJobConsumers";
+        public string CronJobConsumersTableName { get; set; } = "fabron_cronjob_consumers";
 
     }
 

@@ -2,6 +2,7 @@
 
   <PropertyGroup>
     <DefaultTargetFramework>net6.0</DefaultTargetFramework>
+    <VersionPrefix>0.0.1</VersionPrefix>
   </PropertyGroup>
 
   <PropertyGroup>

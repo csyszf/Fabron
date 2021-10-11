@@ -2,14 +2,14 @@
 
   <PropertyGroup>
     <TargetFramework>$(DefaultTargetFramework)</TargetFramework>
-    <PackageId>Fabron.Server</PackageId>
+    <PackageId>Fabron.Providers.PostgreSQL</PackageId>
     <VersionPrefix>0.0.1</VersionPrefix>
     <RepositoryUrl>https://github.com/DCArea/Fabron</RepositoryUrl>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Dapper" Version="2.0.90" />
-    <PackageReference Include="Microsoft.Orleans.Persistence.AdoNet" Version="3.5.0" />
+    <PackageReference Include="Microsoft.Orleans.Clustering.AdoNet" Version="3.5.0" />
+    <PackageReference Include="Microsoft.Orleans.Reminders.AdoNet" Version="3.5.0" />
     <PackageReference Include="Npgsql" Version="5.0.10" />
   </ItemGroup>
 

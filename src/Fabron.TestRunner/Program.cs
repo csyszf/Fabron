@@ -13,36 +13,8 @@ using Orleans;
 using Orleans.Configuration;
 using Orleans.Hosting;
 
-var host = await Host.CreateDefaultBuilder()
-    .ConfigureHostConfiguration(config =>
-    {
-        config.AddInMemoryCollection(new Dictionary<string, string>
-            {
-                { "Logging:LogLevel:Default", "Error" },
-                // { "Logging:LogLevel:Fabron.Grains.CronJobGrain", "Debug" },
-                { "Logging:LogLevel:Fabron", "Debug" }
-            });
-    })
-    .ConfigureServices(services =>
-    {
-        services.AddFabron();
-    })
-    .UseFabron((context, silo) =>
-    {
-        silo
-            .Configure<CronJobOptions>(options => options.UseAsynchronousIndexer = false)
-            .Configure<StatisticsOptions>(options =>
-            {
-                options.LogWriteInterval = TimeSpan.FromMilliseconds(-1);
-            })
-            .UseLocalhostClustering()
-            .UseInMemory();
-    }
-    )
-    .UseConsoleLifetime()
-    .StartAsync();
-// .RunConsoleAsync();
 
-await new ScheduleCronJob().PlayAsync();
+// await new ScheduleCronJob().PlayAsync();
 // await new LabelBasedQuery().PlayAsync();
 // await new ErrorOnListeners().PlayAsync();
+await new PgsqlScheduleCronJob().PlayAsync();

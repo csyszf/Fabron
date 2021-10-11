@@ -32,19 +32,25 @@ namespace Fabron.TestRunner.Scenarios
             return builder;
         }
 
+        protected virtual IEnumerable<KeyValuePair<string, string>> Configs => new Dictionary<string, string>
+        {
+            { "Logging:LogLevel:Default", "Error" },
+        };
+
         public virtual IHost CreateHost()
         {
             var builder = Host.CreateDefaultBuilder()
                 .ConfigureHostConfiguration(config =>
                 {
-                    config.AddInMemoryCollection(new Dictionary<string, string>
-                        {
-                            { "Logging:LogLevel:Default", "Error" },
-                            // { "Logging:LogLevel:Fabron.Grains.CronJobGrain", "Debug" },
-                            // { "Logging:LogLevel:Fabron", "Debug" },
-                            { "Logging:LogLevel:Fabron.Grains.CronJobScheduler", "Debug" },
-                            // { "Logging:LogLevel:Fabron.ElasticSearch.ElasticSearchJobQuerier", "Debug" }
-                        });
+                    config.AddInMemoryCollection(Configs);
+                    // config.AddInMemoryCollection(new Dictionary<string, string>
+                    //     {
+                    //         { "Logging:LogLevel:Default", "Error" },
+                    //         // { "Logging:LogLevel:Fabron.Grains.CronJobGrain", "Debug" },
+                    //         // { "Logging:LogLevel:Fabron", "Debug" },
+                    //         { "Logging:LogLevel:Fabron.Grains.CronJobScheduler", "Debug" },
+                    //         // { "Logging:LogLevel:Fabron.ElasticSearch.ElasticSearchJobQuerier", "Debug" }
+                    //     });
                 })
                 .ConfigureServices(services =>
                 {
