@@ -159,7 +159,26 @@ const deployment = new Deployment(appName, {
                             fieldRef: {
                                 fieldPath: "status.podIP"
                             }
+                        },
+                    }, {
+                        name: "OTEL_SERVICE_NAME",
+                        valueFrom: {
+                            fieldRef: {
+                                apiVersion: "v1",
+                                fieldPath: "metadata.labels['app.kubernetes.io/name']"
+                            }
                         }
+                    }, {
+                        name: "OTEL_EXPORTER_OTLP_HOST",
+                        valueFrom: {
+                            fieldRef: {
+                                apiVersion: "v1",
+                                fieldPath: "status.hostIP"
+                            }
+                        }
+                    }, {
+                        name: "OTEL_EXPORTER_OTLP_ENDPOINT",
+                        value: "http://$(OTEL_EXPORTER_OTLP_HOST):4317"
                     }],
                     envFrom: [{
                         secretRef: { name: secret.metadata.name }

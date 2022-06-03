@@ -27,7 +27,7 @@
     <MapsterVersion>7.2.0</MapsterVersion>
     <MicrosoftToolkitDiagnostics>7.1.2</MicrosoftToolkitDiagnostics>
     <NpgsqlVersion>6.0.4</NpgsqlVersion>
-    <OpenTelemetryCoreVersion>1.3.0-beta.1</OpenTelemetryCoreVersion>
+    <OpenTelemetryCoreVersion>1.3.0-beta.2</OpenTelemetryCoreVersion>
     <OpenTelemetryNonCoreVersion>1.0.0-rc9.3</OpenTelemetryNonCoreVersion>
     <OrleansCassandraUtilsVersion>1.0.1</OrleansCassandraUtilsVersion>
     <OrleansClusteringRedisVersion>3.1.1</OrleansClusteringRedisVersion>

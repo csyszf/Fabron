@@ -10,6 +10,8 @@ using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.OpenApi.Models;
+using Npgsql;
+using OpenTelemetry.Trace;
 using Orleans.Hosting;
 using Prometheus;
 
@@ -29,6 +31,7 @@ else
         .ConfigureOrleans((ctx, siloBuilder) =>
         {
             siloBuilder.UseKubernetesHosting();
+            siloBuilder.AddActivityPropagation();
         })
         .UsePostgreSQL(builder.Configuration["PGSQL"]);
     client.UsePostgreSQL(builder.Configuration["PGSQL"]);
@@ -39,6 +42,16 @@ builder.Services
     .AddApiKeyAuth(builder.Configuration["ApiKey"])
     .AddSwagger()
     .RegisterJobCommandHandlers();
+
+builder.Services
+    .AddOpenTelemetryTracing(options => options
+        .AddEncrichedAspNetCoreInstrumentation()
+        .AddNpgsql()
+        .AddSource("Microsoft.Orleans")
+        .AddProcessor()
+        .AddHttpClientInstrumentation()
+        .AddOtlpExporter()
+    );
 
 var app = builder.Build();
 

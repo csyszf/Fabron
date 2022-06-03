@@ -11,7 +11,6 @@ public static class Routes
     internal const string CronHttpReminders_Register = $"{CronHttpReminders}_{nameof(CronHttpRemindersHandler.Register)}";
     public static IEndpointRouteBuilder MapCronHttpReminders(this IEndpointRouteBuilder endpoints)
     {
-
         endpoints.MapPut("/cron-http-reminders/{name}", CronHttpRemindersHandler.Register)
             .WithName(CronHttpReminders_Register)
             .RequireAuthorization();

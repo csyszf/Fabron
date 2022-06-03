@@ -8,12 +8,19 @@
 
   <ItemGroup>
     <PackageReference Include="AspNetCore.Authentication.ApiKey" Version="$(AspNetCoreAuthenticationApiKeyVersion)" />
+    <PackageReference Include="DCA.DotNet.Extensions.OpenTelemetry.AspNetCore" Version="0.0.1-alpha3.0" />
     <PackageReference Include="Microsoft.Orleans.Hosting.Kubernetes" Version="$(OrleansVersion)" />
     <PackageReference Include="Npgsql" Version="$(NpgsqlVersion)" />
+    <PackageReference Include="Npgsql.OpenTelemetry" Version="$(NpgsqlVersion)" />
     <PackageReference Include="Microsoft.Orleans.SDK" Version="$(OrleansVersion)" />
     <PackageReference Include="Microsoft.Orleans.Persistence.AdoNet" Version="$(OrleansVersion)" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="$(SwashbuckleAspNetCoreVersion)" />
     <PackageReference Include="prometheus-net.AspNetCore" Version="$(PrometheusNetVersion)" />
+    <PackageReference Include="OpenTelemetry.Exporter.OpenTelemetryProtocol" Version="$(OpenTelemetryCoreVersion)" />
+    <PackageReference Include="OpenTelemetry.Extensions.Hosting" Version="$(OpenTelemetryNonCoreVersion)" />
+    <PackageReference Include="OpenTelemetry.Instrumentation.AspNetCore" Version="$(OpenTelemetryNonCoreVersion)" />
+    <PackageReference Include="OpenTelemetry.Instrumentation.GrpcNetClient" Version="$(OpenTelemetryNonCoreVersion)" />
+    <PackageReference Include="OpenTelemetry.Instrumentation.Http" Version="$(OpenTelemetryNonCoreVersion)" />
   </ItemGroup>
 
   <ItemGroup>

@@ -4,4 +4,4 @@ config:
   fabron:PGSQL:
     secure: AAABAN3rP3ps00kkXrjCX+5f8zk3uocjf3jBU8FuPVLyV2tmjhy1Q4TIwc7V/l/6HHiLvJ4sEHumt3ChCKylFLX379hl/T4KXU6zJfo60fgU2Q4sv1aNk8qTDM0j2o73t1zeOibTsC8oc8ObfcG1skZvL3VOkvln9RwhR3ZxHIRe5EHL3gxhIRxftkw2QVRDW0Y3RcJ5FClpPmaDjlcxSpEXvrpzXD14u/ECLDTfplqbDj5KPoEmrfVHFYMfAEdHKYY=
   fabron:host: fabron.s.suuyuu.cn
-  fabron:image: registry.cn-hangzhou.aliyuncs.com/surac/fabron:dev.010
+  fabron:image: registry.cn-hangzhou.aliyuncs.com/surac/fabron:dev.018
