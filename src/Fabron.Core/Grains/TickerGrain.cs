@@ -33,15 +33,7 @@ public abstract partial class TickerGrain : IRemindable
 
     protected async Task TickAfter(TimeSpan dueTime)
     {
-        // if (_tickReminder is null)
         _tickReminder = await _runtime.ReminderRegistry.RegisterOrUpdateReminder(GrainContext.GrainId, Names.TickerReminder, dueTime, _interval);
-
-        // // ?
-        // if (dueTime != _interval)
-        // {
-        //     _runtime.TimerRegistry.RegisterTimer(GrainContext, obj => Tick(), null, dueTime, TimeSpan.FromMilliseconds(-1));
-        // }
-
         TickerLog.TickerRegistered(_logger, _key, dueTime);
     }
 

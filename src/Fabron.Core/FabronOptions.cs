@@ -19,4 +19,13 @@ namespace Fabron
         public CronFormat CronFormat { get; set; } = CronFormat.Standard;
     }
 
+    public class SimpleSchedulerOptions : CommonOptions
+    {
+    }
+
+    public class CronSchedulerOptions : CommonOptions
+    {
+        public CronFormat CronFormat { get; set; } = CronFormat.Standard;
+    }
+
 }
