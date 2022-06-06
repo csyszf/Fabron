@@ -3,6 +3,7 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 using AspNetCore.Authentication.ApiKey;
+using Fabron;
 using Fabron.Providers.PostgreSQL;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
@@ -17,7 +18,20 @@ using Prometheus;
 
 var builder = WebApplication.CreateBuilder(args);
 
-var server = builder.Host.UseFabronServer();
+builder.Services.Configure<CronSchedulerOptions>(options => options.CronFormat = Cronos.CronFormat.IncludeSeconds);
+var server = builder.Host.UseFabronServer()
+    .AddSimpleEventRouter(options =>
+    {
+        options.Routes.Add(new()
+        {
+            Matches = (metadata, envelop) => true,
+            HandleAsync = (metadata, envelop) =>
+            {
+                System.Console.WriteLine(JsonSerializer.Serialize(envelop, new JsonSerializerOptions { WriteIndented = true }));
+                return ValueTask.CompletedTask;
+            }
+        });
+    });
 var client = builder.Host.UseFabronClient(cohosted: true);
 
 if (builder.Environment.IsDevelopment())
@@ -90,6 +104,7 @@ public static class AppConfigureExtensions
 
     public static IServiceCollection AddSwagger(this IServiceCollection services)
     {
+        services.AddEndpointsApiExplorer();
         services.AddSwaggerGen(c =>
         {
             c.SwaggerDoc("v1", new OpenApiInfo { Title = "FabronService", Version = "v1" });

@@ -20,6 +20,8 @@ public interface IFabronClient
         Dictionary<string, string>? labels = null,
         Dictionary<string, string>? annotations = null);
 
+    Task<TimedEvent<TData>?> GetTimedEvent<TData>(string key);
+
     Task ScheduleCronEvent<T>(
         string key,
         string schedule,
@@ -30,7 +32,7 @@ public interface IFabronClient
         Dictionary<string, string>? labels = null,
         Dictionary<string, string>? annotations = null);
 
-    Task<CronEvent?> GetCronEvent<T>(string key);
+    Task<CronEvent<TData>?> GetCronEvent<TData>(string key);
 }
 
 public class FabronClient : IFabronClient
@@ -64,6 +66,20 @@ public class FabronClient : IFabronClient
         await grain.Schedule(spec, labels, annotations, null);
     }
 
+    public async Task<TimedEvent<TData>?> GetTimedEvent<TData>(string key)
+    {
+        var grain = _client.GetGrain<ITimedEventScheduler>(key);
+        var state = await grain.GetState();
+        if (state is null) return null;
+        return new TimedEvent<TData>(
+            state.Metadata,
+            new(
+                state.Spec.Schedule,
+                JsonSerializer.Deserialize<CloudEventTemplate<TData>>(state.Spec.CloudEventTemplate, _options.JsonSerializerOptions)!
+            )
+        );
+    }
+
     public async Task ScheduleCronEvent<T>(
         string key,
         string schedule,
@@ -86,11 +102,21 @@ public class FabronClient : IFabronClient
         await grain.Schedule(spec, labels, annotations, null);
     }
 
-    public async Task<CronEvent?> GetCronEvent<T>(string key)
+    public async Task<CronEvent<TData>?> GetCronEvent<TData>(string key)
     {
         var grain = _client.GetGrain<ICronEventScheduler>(key);
         var state = await grain.GetState();
-        return state;
+        if (state is null) return null;
+        return new CronEvent<TData>(
+            state.Metadata,
+            new(
+                state.Spec.Schedule,
+                JsonSerializer.Deserialize<CloudEventTemplate<TData>>(state.Spec.CloudEventTemplate, _options.JsonSerializerOptions)!,
+                state.Spec.NotBefore,
+                state.Spec.ExpirationTime,
+                state.Spec.Suspend
+            )
+        );
     }
 
 }

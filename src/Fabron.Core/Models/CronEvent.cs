@@ -1,5 +1,6 @@
 
 using System;
+using Fabron.Core.CloudEvents;
 using Orleans;
 
 namespace Fabron.Models;
@@ -33,4 +34,17 @@ public class CronEventSpec
     [Id(4)]
     public bool Suspend { get; set; }
 }
+
+public record CronEvent<TData>(
+    ScheduleMetadata Metadata,
+    CronEventSpec<TData> Spec
+);
+
+public record CronEventSpec<TData>(
+    string Schedule,
+    CloudEventTemplate<TData> Template,
+    DateTimeOffset? NotBefore,
+    DateTimeOffset? ExpirationTime,
+    bool Suspend
+);
 

@@ -9,6 +9,7 @@ using Fabron.Store;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Orleans;
+using Orleans.Concurrency;
 using Orleans.Runtime;
 
 namespace Fabron.Grains;
@@ -22,6 +23,9 @@ public interface ITimedEventScheduler : IGrainWithStringKey
         string? owner
     );
 
+    [ReadOnly]
+    ValueTask<TimedEvent?> GetState();
+
     Task Unregister();
 }
 
@@ -29,7 +33,7 @@ public class TimedEventScheduler : TickerGrain, IGrainBase, ITimedEventScheduler
 {
     private readonly ILogger _logger;
     private readonly ISystemClock _clock;
-    private readonly ISimpleScheduleStore _store;
+    private readonly ITimedEventStore _store;
     private readonly SimpleSchedulerOptions _options;
     private readonly IEventDispatcher _mediator;
 
@@ -39,7 +43,7 @@ public class TimedEventScheduler : TickerGrain, IGrainBase, ITimedEventScheduler
         ILogger<TimedEventScheduler> logger,
         IOptions<SimpleSchedulerOptions> options,
         ISystemClock clock,
-        ISimpleScheduleStore store,
+        ITimedEventStore store,
         IEventDispatcher mediator) : base(context, runtime, logger, options.Value.TickerInterval)
     {
         _logger = logger;
@@ -65,6 +69,8 @@ public class TimedEventScheduler : TickerGrain, IGrainBase, ITimedEventScheduler
             await StopTicker();
         }
     }
+
+    public ValueTask<TimedEvent?> GetState() => ValueTask.FromResult(_state);
 
     public async Task<TimedEvent> Schedule(
         TimedEventSpec spec,

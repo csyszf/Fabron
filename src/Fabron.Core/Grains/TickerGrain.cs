@@ -78,6 +78,7 @@ public abstract partial class TickerGrain : IRemindable
         {
             _tickReminder = await _runtime.ReminderRegistry.GetReminder(GrainContext.GrainId, Names.TickerReminder);
         }
+        TickerLog.Ticking(_logger, _key);
         await Tick(status.FirstTickTime);
     }
 
@@ -88,6 +89,12 @@ public abstract partial class TickerGrain : IRemindable
             Level = LogLevel.Information,
             Message = "[{key}]: Ticker registered with due time: {dueTime}")]
         public static partial void TickerRegistered(ILogger logger, string key, TimeSpan dueTime);
+
+        [LoggerMessage(
+            EventId = 13150,
+            Level = LogLevel.Information,
+            Message = "[{key}]: Ticking")]
+        public static partial void Ticking(ILogger logger, string key);
 
         [LoggerMessage(
             EventId = 13200,

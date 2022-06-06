@@ -11,12 +11,14 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.Toolkit.Diagnostics;
 using Orleans;
+using Orleans.Concurrency;
 using Orleans.Runtime;
 
 namespace Fabron.Grains;
 
 public interface ICronEventScheduler : IGrainWithStringKey
 {
+    [ReadOnly]
     ValueTask<CronEvent?> GetState();
 
     Task<CronEvent> Schedule(
@@ -33,9 +35,9 @@ public class CronEventScheduler : TickerGrain, IGrainBase, ICronEventScheduler
 {
     private readonly ILogger _logger;
     private readonly ISystemClock _clock;
-    private readonly ICronScheduleStore _store;
+    private readonly ICronEventStore _store;
     private readonly CronSchedulerOptions _options;
-    private readonly IEventRouter _router;
+    private readonly IEventDispatcher _dispatcher;
 
     public CronEventScheduler(
         IGrainContext context,
@@ -43,14 +45,14 @@ public class CronEventScheduler : TickerGrain, IGrainBase, ICronEventScheduler
         ILogger<CronEventScheduler> logger,
         IOptions<CronSchedulerOptions> options,
         ISystemClock clock,
-        ICronScheduleStore store,
-        IEventRouter router) : base(context, runtime, logger, options.Value.TickerInterval)
+        ICronEventStore store,
+        IEventDispatcher dispatcher) : base(context, runtime, logger, options.Value.TickerInterval)
     {
         _logger = logger;
         _clock = clock;
         _store = store;
         _options = options.Value;
-        _router = router;
+        _dispatcher = dispatcher;
     }
 
     private CronEvent? _state;
@@ -169,7 +171,7 @@ public class CronEventScheduler : TickerGrain, IGrainBase, ICronEventScheduler
         Guard.IsNotNull(_state, nameof(_state));
         try
         {
-            await _router.DispatchAsync(_state.Metadata, _state.ToCloudEvent(schedule, _options.JsonSerializerOptions));
+            await _dispatcher.DispatchAsync(_state.Metadata, _state.ToCloudEvent(schedule, _options.JsonSerializerOptions));
         }
         catch (Exception e)
         {

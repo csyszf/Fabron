@@ -1,5 +1,6 @@
 
 using System;
+using Fabron.Core.CloudEvents;
 using Orleans;
 
 namespace Fabron.Models;
@@ -24,3 +25,12 @@ public class TimedEventSpec
     public string CloudEventTemplate { get; init; } = default!;
 }
 
+public record TimedEvent<TData>(
+    ScheduleMetadata Metadata,
+    TimedEventSpec<TData> Spec
+);
+
+public record TimedEventSpec<TData>(
+    DateTimeOffset Schedule,
+    CloudEventTemplate<TData> Template
+);

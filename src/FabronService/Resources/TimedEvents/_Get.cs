@@ -5,9 +5,9 @@ using Fabron;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
-namespace FabronService.Resources.CronEvents;
+namespace FabronService.Resources.TimedEvents;
 
-public static partial class CronEventsHandler
+public static partial class TimedEventsHandler
 {
     public static async Task<IResult> Get(
         [FromRoute] string name,
@@ -19,9 +19,9 @@ public static partial class CronEventsHandler
             return Results.Unauthorized();
 
         string key = $"{tenant}/{name}";
-        var cronEvent = await fabronClient.GetCronEvent<JsonElement>(key);
-        if (cronEvent is null)
+        var timedEvent = await fabronClient.GetTimedEvent<JsonElement>(key);
+        if (timedEvent is null)
             return Results.NotFound();
-        return Results.Ok(cronEvent);
+        return Results.Ok(timedEvent);
     }
 }
