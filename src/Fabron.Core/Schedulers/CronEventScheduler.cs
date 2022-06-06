@@ -17,6 +17,8 @@ namespace Fabron.Grains;
 
 public interface ICronEventScheduler : IGrainWithStringKey
 {
+    ValueTask<CronEvent?> GetState();
+
     Task<CronEvent> Schedule(
         CronEventSpec spec,
         Dictionary<string, string>? labels,
@@ -69,6 +71,8 @@ public class CronEventScheduler : TickerGrain, IGrainBase, ICronEventScheduler
             await StopTicker();
         }
     }
+
+    public ValueTask<CronEvent?> GetState() => new(_state);
 
     public async Task<CronEvent> Schedule(
         CronEventSpec spec,

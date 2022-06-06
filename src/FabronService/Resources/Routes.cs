@@ -3,8 +3,16 @@ using Microsoft.AspNetCore.Builder;
 
 namespace Microsoft.AspNetCore.Routing;
 
-public static class Routes
+public static partial class Routes
 {
+    public static IEndpointRouteBuilder MapRoutes(this IEndpointRouteBuilder endpoints)
+    {
+        endpoints.MapCronEvents();
+        endpoints.MapCronHttpReminders();
+        endpoints.MapHttpReminders();
+        return endpoints;
+    }
+
     const string CronHttpReminders = nameof(FabronService.Resources.CronHttpReminders);
     internal const string CronHttpReminders_Get = $"{CronHttpReminders}_{nameof(CronHttpRemindersHandler.Get)}";
     internal const string CronHttpReminders_GetSchedules = $"{CronHttpReminders}_{nameof(CronHttpRemindersHandler.GetSchedules)}";

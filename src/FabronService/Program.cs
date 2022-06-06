@@ -61,8 +61,7 @@ app.UseAuthentication()
 
 app.MapHealthChecks("/health").AllowAnonymous();
 app.MapMetrics().AllowAnonymous();
-app.MapCronHttpReminders();
-app.MapHttpReminders();
+app.MapRoutes();
 
 app.Run();
 

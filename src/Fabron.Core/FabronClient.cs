@@ -29,6 +29,8 @@ public interface IFabronClient
         bool suspend = false,
         Dictionary<string, string>? labels = null,
         Dictionary<string, string>? annotations = null);
+
+    Task<CronEvent?> GetCronEvent<T>(string key);
 }
 
 public class FabronClient : IFabronClient
@@ -82,6 +84,13 @@ public class FabronClient : IFabronClient
             Suspend = suspend,
         };
         await grain.Schedule(spec, labels, annotations, null);
+    }
+
+    public async Task<CronEvent?> GetCronEvent<T>(string key)
+    {
+        var grain = _client.GetGrain<ICronEventScheduler>(key);
+        var state = await grain.GetState();
+        return state;
     }
 
 }

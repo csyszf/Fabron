@@ -11,7 +11,7 @@ public class ScheduleMetadata
     public string Key { get; set; } = default!;
 
     [Id(1)]
-    public DateTimeOffset? CreationTimestamp { get; set; }
+    public DateTimeOffset CreationTimestamp { get; set; }
 
     [Id(2)]
     public DateTimeOffset? DeletionTimestamp { get; set; }
