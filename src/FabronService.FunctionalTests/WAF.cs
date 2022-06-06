@@ -23,7 +23,7 @@ namespace FabronService.FunctionalTests
     {
     }
 
-    public class WAF<TSiloConfigurator> : WebApplicationFactory<TestStartup>, IAsyncLifetime
+    public class WAF<TSiloConfigurator> : WebApplicationFactory<Program>, IAsyncLifetime
         where TSiloConfigurator : TestSiloConfigurator, new()
     {
         public TestCluster TestCluster { get; private set; } = default!;
@@ -34,30 +34,29 @@ namespace FabronService.FunctionalTests
 
         Task IAsyncLifetime.DisposeAsync() => TestCluster.StopAllSilosAsync();
 
-        protected override IHostBuilder CreateHostBuilder()
+        protected override IHost CreateHost(IHostBuilder builder)
         {
-            string assemblyName = typeof(TestStartup).Assembly.GetName().Name!;
-            string settingSuffix = assemblyName.ToUpperInvariant().Replace(".", "_");
-            string envName = $"ASPNETCORE_TEST_CONTENTROOT_{settingSuffix}";
-            return Host.CreateDefaultBuilder()
-                .ConfigureAppConfiguration(config =>
+
+            builder = builder.ConfigureAppConfiguration(config =>
                 {
                     config.AddInMemoryCollection(new Dictionary<string, string> { { "ApiKey", "debug" } });
                 })
                 .ConfigureServices((ctx, services) =>
                 {
                     services.AddSingleton<IJobManager, JobManager>();
-                    services.AddSingleton(TestCluster);
-                    services.AddSingleton(TestCluster.Client);
-                    services.AddSingleton<IGrainFactory>(TestCluster.Client);
-                })
-                .ConfigureWebHostDefaults(webBuilder =>
-                {
-                    webBuilder.UseSolutionRelativeContentRoot("src/FabronService");
-                    string contentRoot = webBuilder.GetSetting(WebHostDefaults.ContentRootKey) ?? throw new InvalidOperationException("content root not valid");
-                    Environment.SetEnvironmentVariable(envName, contentRoot);
-                    webBuilder.UseStartup<TestStartup>();
                 });
+            return base.CreateHost(builder);
+        }
+
+        protected override void ConfigureWebHost(IWebHostBuilder builder)
+        {
+            builder.ConfigureTestServices(services =>
+            {
+                services.AddSingleton(TestCluster);
+                services.AddSingleton(TestCluster.Client);
+                services.AddSingleton<IGrainFactory>(TestCluster.Client);
+            });
+            base.ConfigureWebHost(builder);
         }
 
         public async Task<TestCluster> CreateTestClusterAsync()

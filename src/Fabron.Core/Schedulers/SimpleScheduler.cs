@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using Fabron.Core.CloudEvents;
 using Fabron.Models;
 using Fabron.Store;
 using Microsoft.Extensions.Logging;
@@ -12,39 +13,43 @@ using Orleans.Runtime;
 
 namespace Fabron.Grains;
 
-public interface ISimpleScheduler : IGrainWithStringKey
+public interface ITimedEventScheduler : IGrainWithStringKey
 {
-    Task<SimpleSchedule> Register(
-        SimpleScheduleSpec spec,
-        Dictionary<string, string>? tags,
+    Task<TimedEvent> Schedule(
+        TimedEventSpec spec,
+        Dictionary<string, string>? labels,
+        Dictionary<string, string>? annotations,
         string? owner
     );
 
     Task Unregister();
 }
 
-public class SimpleScheduler : TickerGrain, IGrainBase, ISimpleScheduler
+public class TimedEventScheduler : TickerGrain, IGrainBase, ITimedEventScheduler
 {
     private readonly ILogger _logger;
     private readonly ISystemClock _clock;
     private readonly ISimpleScheduleStore _store;
     private readonly SimpleSchedulerOptions _options;
+    private readonly IEventDispatcher _mediator;
 
-    public SimpleScheduler(
+    public TimedEventScheduler(
         IGrainContext context,
         IGrainRuntime runtime,
-        ILogger<SimpleScheduler> logger,
+        ILogger<TimedEventScheduler> logger,
         IOptions<SimpleSchedulerOptions> options,
         ISystemClock clock,
-        ISimpleScheduleStore store) : base(context, runtime, logger, options.Value.TickerInterval)
+        ISimpleScheduleStore store,
+        IEventDispatcher mediator) : base(context, runtime, logger, options.Value.TickerInterval)
     {
         _logger = logger;
         _clock = clock;
         _store = store;
         _options = options.Value;
+        _mediator = mediator;
     }
 
-    private SimpleSchedule? _state;
+    private TimedEvent? _state;
     private string? _eTag;
     async Task IGrainBase.OnActivateAsync(CancellationToken cancellationToken)
     {
@@ -61,22 +66,24 @@ public class SimpleScheduler : TickerGrain, IGrainBase, ISimpleScheduler
         }
     }
 
-    public async Task<SimpleSchedule> Register(
-        SimpleScheduleSpec spec,
-        Dictionary<string, string>? tags,
+    public async Task<TimedEvent> Schedule(
+        TimedEventSpec spec,
+        Dictionary<string, string>? labels,
+        Dictionary<string, string>? annotations,
         string? owner)
     {
         var utcNow = _clock.UtcNow;
-        var schedule_ = spec.Schedule is null || spec.Schedule.Value < utcNow ? utcNow : spec.Schedule.Value;
+        var schedule_ = spec.Schedule;
         await TickAfter(_options.TickerInterval);
 
-        _state = new SimpleSchedule
+        _state = new TimedEvent
         {
             Metadata = new()
             {
                 Key = _key,
                 CreationTimestamp = utcNow,
-                Tags = tags,
+                Labels = labels,
+                Annotations = annotations,
                 Owner = owner
             },
             Spec = spec
@@ -104,7 +111,16 @@ public class SimpleScheduler : TickerGrain, IGrainBase, ISimpleScheduler
             return;
         }
 
-        // TODO: raise cloud event
+        try
+        {
+            var envelop = _state.ToCloudEvent(_state.Spec.Schedule, _options.JsonSerializerOptions);
+            await _mediator.DispatchAsync(_state.Metadata, envelop);
+        }
+        catch (Exception e)
+        {
+            TickerLog.ErrorOnTicking(_logger, _key, e);
+            return;
+        }
     }
 }
 

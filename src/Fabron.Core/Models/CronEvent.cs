@@ -1,29 +1,28 @@
 
 using System;
-using System.Collections.Generic;
 using Orleans;
 
 namespace Fabron.Models;
 
 [GenerateSerializer]
-public class CronSchedule
+public class CronEvent
 {
     [Id(0)]
     public ScheduleMetadata Metadata { get; set; } = default!;
 
     [Id(1)]
-    public CronScheduleSpec Spec { get; set; } = default!;
+    public CronEventSpec Spec { get; set; } = default!;
 };
 
 [GenerateSerializer]
-public class CronScheduleSpec
+public class CronEventSpec
 {
 
     [Id(0)]
     public string Schedule { get; init; } = default!;
 
     [Id(1)]
-    public string Event { get; init; } = default!;
+    public string CloudEventTemplate { get; init; } = default!;
 
     [Id(2)]
     public DateTimeOffset? NotBefore { get; set; }

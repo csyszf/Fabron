@@ -48,7 +48,6 @@ builder.Services
         .AddEncrichedAspNetCoreInstrumentation()
         .AddNpgsql()
         .AddSource("Microsoft.Orleans")
-        .AddProcessor()
         .AddHttpClientInstrumentation()
         .AddOtlpExporter()
     );
@@ -67,7 +66,9 @@ app.MapHttpReminders();
 
 app.Run();
 
+
 #pragma warning disable CA1050 // Declare types in namespaces
+public partial class Program { }
 public static class AppConfigureExtensions
 #pragma warning restore CA1050 // Declare types in namespaces
 {

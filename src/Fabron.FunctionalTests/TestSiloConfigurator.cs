@@ -28,7 +28,8 @@ namespace Fabron.FunctionalTests
                 options.ResponseTimeout = TimeSpan.FromSeconds(5);
             });
 
-            siloBuilder.UseLocalhostClustering();
+            siloBuilder.UseLocalhostClustering()
+                .UseInMemoryReminderService();
             siloBuilder.ConfigureServices(services =>
             {
                 services.AddSingleton<IJobStore, InMemoryJobStore>();

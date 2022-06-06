@@ -17,7 +17,7 @@ namespace FabronService.FunctionalTests
 {
     public static class WAFExtensions
     {
-        public static WebApplicationFactory<TestStartup> WithTestUser(this WebApplicationFactory<TestStartup> waf)
+        public static WebApplicationFactory<Program> WithTestUser(this WebApplicationFactory<Program> waf)
             => waf.WithWebHostBuilder(builder =>
             {
                 builder.ConfigureTestServices(services =>
@@ -28,22 +28,22 @@ namespace FabronService.FunctionalTests
                 });
             });
 
-        public static TestCluster GetSiloCluster(this WebApplicationFactory<TestStartup> waf)
+        public static TestCluster GetSiloCluster(this WebApplicationFactory<Program> waf)
             => waf.Services.GetRequiredService<TestCluster>();
 
-        public static TService GetSiloService<TService>(this WebApplicationFactory<TestStartup> waf)
+        public static TService GetSiloService<TService>(this WebApplicationFactory<Program> waf)
             where TService : notnull
             => ((InProcessSiloHandle)waf.GetSiloCluster().Primary).SiloHost.Services.GetRequiredService<TService>();
 
-        public static Mock<HttpMessageHandler> GetHttpMessageHandlerMock(this WebApplicationFactory<TestStartup> waf)
+        public static Mock<HttpMessageHandler> GetHttpMessageHandlerMock(this WebApplicationFactory<Program> waf)
             => waf.GetSiloService<Mock<HttpMessageHandler>>();
 
-        public static WebApplicationFactory<TestStartup> WithServices(this WebApplicationFactory<TestStartup> waf, Action<IServiceCollection> configureServices) => waf.WithWebHostBuilder(builder =>
+        public static WebApplicationFactory<Program> WithServices(this WebApplicationFactory<Program> waf, Action<IServiceCollection> configureServices) => waf.WithWebHostBuilder(builder =>
         {
             builder.ConfigureTestServices(configureServices);
         });
 
-        public static WebApplicationFactory<TestStartup> WithFakes(this WebApplicationFactory<TestStartup> waf, params object[] fakes) => waf.WithServices(services =>
+        public static WebApplicationFactory<Program> WithFakes(this WebApplicationFactory<Program> waf, params object[] fakes) => waf.WithServices(services =>
         {
             foreach (object? fake in fakes)
             {
@@ -52,30 +52,30 @@ namespace FabronService.FunctionalTests
             }
         });
 
-        public static (HttpClient httpClient, TService fake) CreateClient<TService>(this WebApplicationFactory<TestStartup> waf, WebApplicationFactoryClientOptions clientOptions)
+        public static (HttpClient httpClient, TService fake) CreateClient<TService>(this WebApplicationFactory<Program> waf, WebApplicationFactoryClientOptions clientOptions)
             where TService : class
         {
             TService? fake = A.Fake<TService>();
-            WebApplicationFactory<TestStartup>? newWaf = waf.WithFakes(fake);
+            WebApplicationFactory<Program>? newWaf = waf.WithFakes(fake);
             HttpClient? httpClient = newWaf.CreateClient(clientOptions);
             return (httpClient, fake);
         }
 
-        public static (HttpClient httpClient, TService1 fake1, TService2 fake2) CreateClient<TService1, TService2>(this WebApplicationFactory<TestStartup> waf, WebApplicationFactoryClientOptions clientOptions)
+        public static (HttpClient httpClient, TService1 fake1, TService2 fake2) CreateClient<TService1, TService2>(this WebApplicationFactory<Program> waf, WebApplicationFactoryClientOptions clientOptions)
             where TService1 : class
             where TService2 : class
         {
             TService1? fake1 = A.Fake<TService1>();
             TService2? fake2 = A.Fake<TService2>();
-            WebApplicationFactory<TestStartup>? newWaf = waf
+            WebApplicationFactory<Program>? newWaf = waf
                 .WithFakes(fake1, fake2);
             HttpClient? httpClient = newWaf.CreateClient(clientOptions);
             return (httpClient, fake1, fake2);
         }
 
-        public static HttpClient CreateClient(this WebApplicationFactory<TestStartup> waf, WebApplicationFactoryClientOptions clientOptions, params object[] fakes)
+        public static HttpClient CreateClient(this WebApplicationFactory<Program> waf, WebApplicationFactoryClientOptions clientOptions, params object[] fakes)
         {
-            WebApplicationFactory<TestStartup>? newWaf = waf
+            WebApplicationFactory<Program>? newWaf = waf
                 .WithFakes(fakes);
             HttpClient? httpClient = newWaf.CreateClient(clientOptions);
             return httpClient;

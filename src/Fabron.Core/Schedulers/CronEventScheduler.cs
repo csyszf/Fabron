@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Fabron.Core.CloudEvents;
 using Fabron.Models;
 using Fabron.Store;
 using Microsoft.Extensions.Logging;
@@ -14,42 +15,43 @@ using Orleans.Runtime;
 
 namespace Fabron.Grains;
 
-public interface ICronScheduler : IGrainWithStringKey
+public interface ICronEventScheduler : IGrainWithStringKey
 {
-    Task<CronSchedule> Register(
-        CronScheduleSpec spec,
-        Dictionary<string, string>? tags,
+    Task<CronEvent> Schedule(
+        CronEventSpec spec,
+        Dictionary<string, string>? labels,
+        Dictionary<string, string>? annotations,
         string? owner
     );
 
     Task Unregister();
 }
 
-public class CronScheduler : TickerGrain, IGrainBase, ICronScheduler
+public class CronEventScheduler : TickerGrain, IGrainBase, ICronEventScheduler
 {
     private readonly ILogger _logger;
     private readonly ISystemClock _clock;
     private readonly ICronScheduleStore _store;
     private readonly CronSchedulerOptions _options;
-    private readonly IEventDispatcher _dispatcher;
+    private readonly IEventRouter _router;
 
-    public CronScheduler(
+    public CronEventScheduler(
         IGrainContext context,
         IGrainRuntime runtime,
-        ILogger<CronScheduler> logger,
+        ILogger<CronEventScheduler> logger,
         IOptions<CronSchedulerOptions> options,
         ISystemClock clock,
         ICronScheduleStore store,
-        IEventDispatcher dispatcher) : base(context, runtime, logger, options.Value.TickerInterval)
+        IEventRouter router) : base(context, runtime, logger, options.Value.TickerInterval)
     {
         _logger = logger;
         _clock = clock;
         _store = store;
         _options = options.Value;
-        _dispatcher = dispatcher;
+        _router = router;
     }
 
-    private CronSchedule? _state;
+    private CronEvent? _state;
     private string? _eTag;
     private DateTimeOffset? _lastSchedule;
 
@@ -68,19 +70,21 @@ public class CronScheduler : TickerGrain, IGrainBase, ICronScheduler
         }
     }
 
-    public async Task<CronSchedule> Register(
-        CronScheduleSpec spec,
-        Dictionary<string, string>? tags,
+    public async Task<CronEvent> Schedule(
+        CronEventSpec spec,
+        Dictionary<string, string>? labels,
+        Dictionary<string, string>? annotations,
         string? owner)
     {
         var utcNow = _clock.UtcNow;
-        _state = new CronSchedule
+        _state = new CronEvent
         {
             Metadata = new()
             {
                 Key = _key,
                 CreationTimestamp = utcNow,
-                Tags = tags,
+                Labels = labels,
+                Annotations = annotations,
                 Owner = owner
             },
             Spec = spec
@@ -161,7 +165,7 @@ public class CronScheduler : TickerGrain, IGrainBase, ICronScheduler
         Guard.IsNotNull(_state, nameof(_state));
         try
         {
-            await _dispatcher.DispatchAsync(schedule, _state.Spec.Event);
+            await _router.DispatchAsync(_state.Metadata, _state.ToCloudEvent(schedule, _options.JsonSerializerOptions));
         }
         catch (Exception e)
         {

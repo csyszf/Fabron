@@ -31,5 +31,6 @@ namespace Fabron
             string childJobName = $"fabron-cronjob-{name}-{schedule.ToUnixTimeSeconds()}";
             return $"/registry/jobs/{@namespace}/{childJobName}";
         }
+
     }
 }
